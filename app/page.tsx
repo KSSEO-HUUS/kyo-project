@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import type { StatusKey, TestRow, KpiItem } from '@shared/qc'
+import { Button } from '@frontend/components/ui/button'
+import { Card, CardContent } from '@frontend/components/ui/card'
 import {
   Table,
   TableBody,
@@ -10,10 +11,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import Sidebar from '@/components/dashboard/sidebar'
-import Chatbot from '@/components/dashboard/chatbot'
+} from '@frontend/components/ui/table'
+import { Avatar, AvatarFallback } from '@frontend/components/ui/avatar'
+import Sidebar from '@frontend/components/dashboard/sidebar'
+import Chatbot from '@frontend/components/dashboard/chatbot'
 import {
   Bell,
   ChevronDown,
@@ -26,26 +27,8 @@ import {
   Search,
 } from 'lucide-react'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type StatusKey = 'completed' | 'reviewing' | 'pending' | 'fail' | 'inprogress'
-
-interface TestRow {
-  id: number
-  category: string
-  type: string
-  product: string
-  testNo: string
-  items: string
-  contractor: string
-  manager: string
-  managerInit: string
-  receiveDate: string
-  dueDate: string
-  status: StatusKey
-}
-
 // ─── Static Data ──────────────────────────────────────────────────────────────
-const ALL_TABS = ['시험현황', '원료시험', '제품시험', '안정성시험', '환경모니터링', '일탈관리'] as const
+const ALL_TABS = ['시험현황', '제품시험', '안정성시험', '일탈관리'] as const
 
 const STATUS_CONFIG: Record<StatusKey, { label: string; cls: string }> = {
   completed:  { label: '적합완료', cls: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
@@ -53,11 +36,6 @@ const STATUS_CONFIG: Record<StatusKey, { label: string; cls: string }> = {
   pending:    { label: '승인대기', cls: 'bg-amber-50 text-amber-700 border border-amber-200' },
   fail:       { label: '부적합',   cls: 'bg-red-50 text-red-700 border border-red-200' },
   inprogress: { label: '진행중',   cls: 'bg-violet-50 text-violet-700 border border-violet-200' },
-}
-
-interface KpiItem {
-  label: string; value: string; unit: string; sub: string
-  accent: string; bg: string; border: string
 }
 
 const KPI_DATA: KpiItem[] = [
@@ -89,7 +67,7 @@ const AVATAR_COLORS: Record<string, string> = {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function QCDashboard() {
   const [activeTab, setActiveTab]         = useState<string>('시험현황')
-  const [pinnedTabs, setPinnedTabs]       = useState<Set<string>>(new Set(['시험현황', '원료시험']))
+  const [pinnedTabs, setPinnedTabs]       = useState<Set<string>>(new Set(['시험현황', '제품시험']))
   const [stickyHeader, setStickyHeader]   = useState(true)
   const [selectedRows, setSelectedRows]   = useState<Set<number>>(new Set())
   const [searchValue, setSearchValue]     = useState('')
@@ -305,7 +283,7 @@ export default function QCDashboard() {
                         type="checkbox"
                         checked={selectedRows.size === TABLE_DATA.length && TABLE_DATA.length > 0}
                         onChange={toggleAll}
-                        className="h-3.5 w-3.5 rounded border-slate-300 accent-blue-600"
+                        className="cb-custom"
                       />
                     </TableHead>
                     {['구분','유형','제품명','시험번호','시험항목','수탁사','담당자','접수일','완료예정일','진행상태'].map(h => (
@@ -334,7 +312,7 @@ export default function QCDashboard() {
                             checked={isSelected}
                             onChange={() => toggleRow(row.id)}
                             onClick={e => e.stopPropagation()}
-                            className="h-3.5 w-3.5 rounded border-slate-300 accent-blue-600"
+                            className="cb-custom"
                           />
                         </TableCell>
                         <TableCell className="px-3">

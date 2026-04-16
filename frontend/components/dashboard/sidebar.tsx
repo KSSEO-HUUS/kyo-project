@@ -4,10 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import {
   Home,
   FlaskConical,
-  Package,
   Box,
   ShieldCheck,
-  Activity,
   AlertTriangle,
   FileText,
   BarChart2,
@@ -49,16 +47,6 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    id: 'raw-test',
-    icon: <Package size={17} />,
-    label: '원료시험',
-    subItems: [
-      { id: 'raw-status', label: '원료시험현황' },
-      { id: 'raw-reg',    label: '원료등록' },
-      { id: 'raw-vendor', label: '업체관리' },
-    ],
-  },
-  {
     id: 'product-test',
     icon: <Box size={17} />,
     label: '제품시험',
@@ -76,16 +64,6 @@ const NAV_ITEMS: NavItem[] = [
       { id: 'stab-status', label: '안정성현황' },
       { id: 'stab-plan',   label: '시험계획' },
       { id: 'stab-report', label: '결과보고' },
-    ],
-  },
-  {
-    id: 'env-monitor',
-    icon: <Activity size={17} />,
-    label: '환경모니터링',
-    subItems: [
-      { id: 'env-status',   label: '모니터링현황' },
-      { id: 'env-plan',     label: '계획관리' },
-      { id: 'env-analysis', label: '결과분석' },
     ],
   },
   {
@@ -161,8 +139,21 @@ export default function Sidebar({ activeItem = 'test-mgmt', onNavigate }: Sideba
   const [favorites,  setFavorites]  = useState<Set<string>>(new Set())
   const [collapsed,  setCollapsed]  = useState(false)
 
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hoverTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const leaveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const wrapperRef   = useRef<HTMLDivElement>(null)
+
+  // 사이드바 외부 클릭 시 서브메뉴 패널 자동 닫힘
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpenMenu(null)
+        setHoverMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Load favorites from localStorage
   useEffect(() => {
@@ -247,7 +238,7 @@ export default function Sidebar({ activeItem = 'test-mgmt', onNavigate }: Sideba
         Both the icon-rail and the submenu panel live here as flex siblings.
         The wrapper's total width expands/contracts → main content auto-adjusts.
       */}
-      <div className="flex h-full shrink-0 z-40">
+      <div ref={wrapperRef} className="flex h-full shrink-0 z-40">
 
         {/* ── Icon rail ──────────────────────────────────────────────────── */}
         <aside
